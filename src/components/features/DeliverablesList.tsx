@@ -96,7 +96,11 @@ export function DeliverablesList({
       ) : (
         <div className="space-y-2">
           {filtered.map((d) => (
-            <DeliverableRow key={d.id} deliverable={d} />
+            <DeliverableRow
+              key={d.id}
+              deliverable={d}
+              agentName={agents.find((a) => a.id === d.agentId)?.name}
+            />
           ))}
         </div>
       )}

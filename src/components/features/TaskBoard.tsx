@@ -35,9 +35,9 @@ export function TaskBoard({ tasks, agents }: TaskBoardProps) {
       />
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <KanbanColumn title="Active" tasks={active} />
-        <KanbanColumn title="Pending" tasks={pending} />
-        <KanbanColumn title="Completed" tasks={completed} />
+        <KanbanColumn title="Active" tasks={active} agents={agents} />
+        <KanbanColumn title="Pending" tasks={pending} agents={agents} />
+        <KanbanColumn title="Completed" tasks={completed} agents={agents} />
       </div>
     </div>
   );

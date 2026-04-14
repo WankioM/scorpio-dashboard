@@ -3,13 +3,9 @@ import { Avatar, Badge, StatusDot, EmptyState } from "@/components/ui";
 import { StatCard } from "@/components/features/StatCard";
 import { TaskCard } from "@/components/features/TaskCard";
 import { DeliverableRow } from "@/components/features/DeliverableRow";
-import {
-  getAgentById,
-  getTasksByAgent,
-  getTaskById,
-  getDeliverablesByAgent,
-  formatRelativeTime,
-} from "@/lib/helpers";
+import { formatRelativeTime } from "@/lib/helpers";
+import { api, ApiError } from "@/lib/api";
+import type { IAgent, ITask, IDeliverable } from "@/types/api";
 
 export default async function AgentDetailPage({
   params,
@@ -17,22 +13,32 @@ export default async function AgentDetailPage({
   params: Promise<{ agentId: string }>;
 }) {
   const { agentId } = await params;
-  const agent = getAgentById(agentId);
 
-  if (!agent) {
-    return (
-      <PageShell>
-        <EmptyState
-          title="Agent not found"
-          description="The agent you're looking for doesn't exist or has been removed."
-        />
-      </PageShell>
-    );
+  let agent: IAgent;
+  try {
+    agent = await api.get<IAgent>(`/agents/${agentId}`);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      return (
+        <PageShell>
+          <EmptyState
+            title="Agent not found"
+            description="The agent you're looking for doesn't exist or has been removed."
+          />
+        </PageShell>
+      );
+    }
+    throw err;
   }
 
-  const agentTasks = getTasksByAgent(agent.id);
-  const currentTask = agent.currentTask ? getTaskById(agent.currentTask) : undefined;
-  const deliverables = getDeliverablesByAgent(agent.id);
+  const [agentTasks, deliverables] = await Promise.all([
+    api.get<ITask[]>(`/tasks?assigneeId=${agentId}`),
+    api.get<IDeliverable[]>(`/deliverables?agentId=${agentId}`),
+  ]);
+
+  const currentTask = agent.currentTask
+    ? agentTasks.find((t) => t.id === agent.currentTask)
+    : undefined;
 
   return (
     <PageShell>
@@ -105,7 +111,7 @@ export default async function AgentDetailPage({
           </h2>
           <div className="mt-3 flex flex-col gap-3">
             {deliverables.map((del) => (
-              <DeliverableRow key={del.id} deliverable={del} />
+              <DeliverableRow key={del.id} deliverable={del} agentName={agent.name} />
             ))}
           </div>
         </section>

@@ -1,9 +1,15 @@
+export const dynamic = "force-dynamic";
+
 import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { Card, Badge } from "@/components/ui";
-import { schemaModels } from "@/lib/schema-data";
+import { api } from "@/lib/api";
+import type { ISchemaResponse } from "@/types/api";
 
-export default function SchemaPage() {
+export default async function SchemaPage() {
+  const schema = await api.get<ISchemaResponse>("/schema");
+  const models = schema.models;
+
   return (
     <PageShell>
       <PageHeader
@@ -13,9 +19,9 @@ export default function SchemaPage() {
 
       {/* Summary row */}
       <div className="mt-6 flex items-center gap-3 flex-wrap">
-        <Badge variant="accent">{schemaModels.length} models</Badge>
+        <Badge variant="accent">{models.length} models</Badge>
         <Badge variant="info">
-          {schemaModels.reduce((sum, m) => sum + m.fieldCount, 0)} total fields
+          {models.reduce((sum, m) => sum + m.fields.length, 0)} total fields
         </Badge>
         <span className="text-xs text-text-secondary font-body">
           Source of truth: local workspace
@@ -24,7 +30,7 @@ export default function SchemaPage() {
 
       {/* Model cards */}
       <div className="mt-6 flex flex-col gap-5">
-        {schemaModels.map((model) => (
+        {models.map((model) => (
           <Card key={model.name} padding={false}>
             {/* Card header */}
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -32,11 +38,8 @@ export default function SchemaPage() {
                 <h2 className="font-heading text-base font-bold text-text-primary">
                   {model.name}
                 </h2>
-                <p className="mt-0.5 text-xs text-text-secondary font-body">
-                  {model.description}
-                </p>
               </div>
-              <Badge variant="default">{model.fieldCount} fields</Badge>
+              <Badge variant="default">{model.fields.length} fields</Badge>
             </div>
 
             {/* Field table */}

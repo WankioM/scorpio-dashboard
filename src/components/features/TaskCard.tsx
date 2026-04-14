@@ -2,7 +2,6 @@ import Link from "next/link";
 import { cn } from "@/lib/cn";
 import { Avatar, Badge, Card } from "@/components/ui";
 import type { Task } from "@/lib/types";
-import { getAgentForTask } from "@/lib/helpers";
 
 type BadgeVariant = "default" | "success" | "warning" | "error" | "info" | "accent";
 
@@ -16,12 +15,12 @@ const priorityVariant: Record<string, BadgeVariant> = {
 interface TaskCardProps {
   task: Task;
   showAssignee?: boolean;
+  agentName?: string;
+  agentAvatar?: string;
   className?: string;
 }
 
-export function TaskCard({ task, showAssignee = false, className }: TaskCardProps) {
-  const agent = showAssignee ? getAgentForTask(task.id) : undefined;
-
+export function TaskCard({ task, showAssignee = false, agentName, agentAvatar, className }: TaskCardProps) {
   return (
     <Link href={`/tasks/${task.id}`} className="block">
       <Card
@@ -46,11 +45,11 @@ export function TaskCard({ task, showAssignee = false, className }: TaskCardProp
           )}
         </div>
 
-        {showAssignee && agent && (
+        {showAssignee && agentName && (
           <div className="flex shrink-0 items-center gap-2">
-            <Avatar name={agent.name} src={agent.avatar} size="sm" />
+            <Avatar name={agentName} src={agentAvatar} size="sm" />
             <span className="text-xs text-text-secondary font-body">
-              {agent.name}
+              {agentName}
             </span>
           </div>
         )}

@@ -1,28 +1,37 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { StatCard } from "@/components/features/StatCard";
 import { TaskCard } from "@/components/features/TaskCard";
 import { Avatar, Badge, Card, StatusDot } from "@/components/ui";
-import { agents, tasks, deliverables } from "@/lib/mock-data";
-import { getActiveTasks, getPendingApprovals, getAgentById } from "@/lib/helpers";
+import { api } from "@/lib/api";
+import type { IAgent, ITask, IApproval, IDeliverable } from "@/types/api";
 
-export default function HomePage() {
-  const activeTasks = getActiveTasks();
-  const pendingApprovals = getPendingApprovals();
+export default async function HomePage() {
+  const [agents, tasks, approvals, deliverables] = await Promise.all([
+    api.get<IAgent[]>("/agents"),
+    api.get<ITask[]>("/tasks"),
+    api.get<IApproval[]>("/approvals"),
+    api.get<IDeliverable[]>("/deliverables"),
+  ]);
+
+  const activeTasks = tasks.filter((t) => t.status === "active");
+  const pendingApprovals = approvals.filter((a) => a.status === "pending");
   const onlineAgents = agents.filter(
     (a) => a.status === "online" || a.status === "busy"
   );
   const totalDeliverables = deliverables.length;
 
-  // Recent tasks: active + pending, sorted by updatedAt desc, take 3
   const recentTasks = tasks
     .filter((t) => t.status === "active" || t.status === "pending")
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 3);
 
-  // Top 3 pending approvals
   const topApprovals = pendingApprovals.slice(0, 3);
+
+  const getAgentById = (id: string) => agents.find((a) => a.id === id);
 
   return (
     <PageShell>
@@ -56,9 +65,18 @@ export default function HomePage() {
             Recent Tasks
           </h2>
           <div className="flex flex-col gap-3">
-            {recentTasks.map((task) => (
-              <TaskCard key={task.id} task={task} showAssignee />
-            ))}
+            {recentTasks.map((task) => {
+              const agent = getAgentById(task.assigneeId);
+              return (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  showAssignee
+                  agentName={agent?.name}
+                  agentAvatar={agent?.avatar}
+                />
+              );
+            })}
           </div>
         </Card>
 

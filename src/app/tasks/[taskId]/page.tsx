@@ -3,12 +3,9 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { DeliverableRow } from "@/components/features/DeliverableRow";
 import { Avatar, Badge, Card, EmptyState } from "@/components/ui";
-import {
-  getTaskById,
-  getAgentForTask,
-  getDeliverablesByTask,
-  formatRelativeTime,
-} from "@/lib/helpers";
+import { formatRelativeTime } from "@/lib/helpers";
+import { api, ApiError } from "@/lib/api";
+import type { ITask, IAgent, IDeliverable } from "@/types/api";
 
 type BadgeVariant = "default" | "success" | "warning" | "error" | "info" | "accent";
 
@@ -31,18 +28,31 @@ export default async function TaskDetailPage({
   params: Promise<{ taskId: string }>;
 }) {
   const { taskId } = await params;
-  const task = getTaskById(taskId);
 
-  if (!task) {
-    return (
-      <PageShell>
-        <EmptyState title="Task not found" description="This task does not exist or may have been removed." />
-      </PageShell>
-    );
+  let task: ITask;
+  try {
+    task = await api.get<ITask>(`/tasks/${taskId}`);
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      return (
+        <PageShell>
+          <EmptyState title="Task not found" description="This task does not exist or may have been removed." />
+        </PageShell>
+      );
+    }
+    throw err;
   }
 
-  const assignee = getAgentForTask(taskId);
-  const deliverables = getDeliverablesByTask(taskId);
+  let assignee: IAgent | undefined;
+  try {
+    assignee = await api.get<IAgent>(`/agents/${task.assigneeId}`);
+  } catch {
+    assignee = undefined;
+  }
+
+  const deliverables = await api.get<IDeliverable[]>(
+    `/deliverables?taskId=${taskId}`
+  );
 
   return (
     <PageShell>
@@ -118,7 +128,7 @@ export default async function TaskDetailPage({
         {deliverables.length > 0 ? (
           <div className="mt-4 space-y-3">
             {deliverables.map((d) => (
-              <DeliverableRow key={d.id} deliverable={d} />
+              <DeliverableRow key={d.id} deliverable={d} agentName={assignee?.name} />
             ))}
           </div>
         ) : (

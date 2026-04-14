@@ -1,9 +1,17 @@
+export const dynamic = "force-dynamic";
+
 import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { DeliverablesList } from "@/components/features/DeliverablesList";
-import { deliverables, agents } from "@/lib/mock-data";
+import { api } from "@/lib/api";
+import type { IAgent, IDeliverable } from "@/types/api";
 
-export default function DeliverablesPage() {
+export default async function DeliverablesPage() {
+  const [deliverables, agents] = await Promise.all([
+    api.get<IDeliverable[]>("/deliverables"),
+    api.get<IAgent[]>("/agents"),
+  ]);
+
   return (
     <PageShell>
       <PageHeader

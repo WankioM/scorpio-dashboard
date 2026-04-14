@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { Approval, ApprovalStatus } from "@/lib/types";
+import type { Approval, ApprovalStatus, Agent } from "@/lib/types";
 import { EmptyState } from "@/components/ui";
 import { ApprovalCard } from "./ApprovalCard";
 
 interface ApprovalQueueProps {
   initialApprovals: Approval[];
+  agents: Agent[];
 }
 
-export function ApprovalQueue({ initialApprovals }: ApprovalQueueProps) {
+export function ApprovalQueue({ initialApprovals, agents }: ApprovalQueueProps) {
   const [approvals, setApprovals] = useState<Approval[]>(initialApprovals);
 
   function updateStatus(id: string, status: ApprovalStatus) {
@@ -20,6 +21,8 @@ export function ApprovalQueue({ initialApprovals }: ApprovalQueueProps) {
 
   const handleApprove = (id: string) => updateStatus(id, "approved");
   const handleReject = (id: string) => updateStatus(id, "rejected");
+
+  const getAgentName = (id: string) => agents.find((a) => a.id === id)?.name;
 
   const pending = approvals.filter((a) => a.status === "pending");
   const reviewed = approvals.filter((a) => a.status !== "pending");
@@ -42,6 +45,7 @@ export function ApprovalQueue({ initialApprovals }: ApprovalQueueProps) {
               <ApprovalCard
                 key={approval.id}
                 approval={approval}
+                agentName={getAgentName(approval.requestedBy)}
                 onApprove={handleApprove}
                 onReject={handleReject}
               />
@@ -61,6 +65,7 @@ export function ApprovalQueue({ initialApprovals }: ApprovalQueueProps) {
               <ApprovalCard
                 key={approval.id}
                 approval={approval}
+                agentName={getAgentName(approval.requestedBy)}
                 onApprove={handleApprove}
                 onReject={handleReject}
               />

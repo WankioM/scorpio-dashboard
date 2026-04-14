@@ -1,9 +1,14 @@
+export const dynamic = "force-dynamic";
+
 import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { AgentCard } from "@/components/features/AgentCard";
-import { agents } from "@/lib/mock-data";
+import { api } from "@/lib/api";
+import type { IAgent } from "@/types/api";
 
-export default function TeamPage() {
+export default async function TeamPage() {
+  const agents = await api.get<IAgent[]>("/agents");
+
   return (
     <PageShell>
       <PageHeader title="Team" description="All agents" />

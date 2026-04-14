@@ -1,11 +1,18 @@
+export const dynamic = "force-dynamic";
+
 import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { ChatListItem } from "@/components/features/ChatListItem";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { getAgentById } from "@/lib/helpers";
-import { chatThreads } from "@/lib/mock-data";
+import { api } from "@/lib/api";
+import type { IAgent, IChatThread } from "@/types/api";
 
-export default function ChatPage() {
+export default async function ChatPage() {
+  const [chatThreads, agents] = await Promise.all([
+    api.get<IChatThread[]>("/chat/threads"),
+    api.get<IAgent[]>("/agents"),
+  ]);
+
   if (chatThreads.length === 0) {
     return (
       <PageShell>
@@ -15,20 +22,13 @@ export default function ChatPage() {
     );
   }
 
-  // Sort: Scorpio first, then alphabetical by agent name
-  const sorted = [...chatThreads].sort((a, b) => {
-    if (a.agentId === "scorpio") return -1;
-    if (b.agentId === "scorpio") return 1;
-    const agentA = getAgentById(a.agentId);
-    const agentB = getAgentById(b.agentId);
-    return (agentA?.name ?? "").localeCompare(agentB?.name ?? "");
-  });
+  const getAgentById = (id: string) => agents.find((a) => a.id === id);
 
   return (
     <PageShell>
       <PageHeader title="Chat" description="Talk to any agent" />
       <div className="mt-6 flex flex-col">
-        {sorted.map((thread) => {
+        {chatThreads.map((thread) => {
           const agent = getAgentById(thread.agentId);
           if (!agent) return null;
           return (

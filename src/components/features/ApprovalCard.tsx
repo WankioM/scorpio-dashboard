@@ -3,10 +3,11 @@
 import { cn } from "@/lib/cn";
 import { Card, Badge, Avatar, Button } from "@/components/ui";
 import type { Approval } from "@/lib/types";
-import { getAgentById, formatRelativeTime } from "@/lib/helpers";
+import { formatRelativeTime } from "@/lib/helpers";
 
 interface ApprovalCardProps {
   approval: Approval;
+  agentName?: string;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   className?: string;
@@ -14,12 +15,11 @@ interface ApprovalCardProps {
 
 export function ApprovalCard({
   approval,
+  agentName,
   onApprove,
   onReject,
   className,
 }: ApprovalCardProps) {
-  const agent = getAgentById(approval.requestedBy);
-
   return (
     <Card className={cn("flex flex-col gap-3", className)}>
       <div className="flex items-start justify-between gap-2">
@@ -38,11 +38,11 @@ export function ApprovalCard({
       </p>
 
       <div className="flex items-center gap-2">
-        {agent && (
+        {agentName && (
           <>
-            <Avatar name={agent.name} size="sm" />
+            <Avatar name={agentName} size="sm" />
             <span className="text-sm font-body text-text-primary">
-              {agent.name}
+              {agentName}
             </span>
           </>
         )}

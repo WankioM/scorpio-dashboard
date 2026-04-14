@@ -1,21 +1,53 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { Card, Badge, Button } from "@/components/ui";
-
-type DataSource = "local" | "cloud";
+import { api, ApiError } from "@/lib/api";
+import type { ISyncMeta, DataSource } from "@/types/api";
 
 export default function SettingsPage() {
-  const [source, setSource] = useState<DataSource>("local");
+  const [config, setConfig] = useState<ISyncMeta | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
-  // Hardcoded sync status for now
-  const syncStatus = {
-    lastFullSync: "2026-04-13T09:00:00Z",
-    localRoot: "C:\\Users\\VICTUS\\Desktop\\PKA",
-    cloudUrl: null as string | null,
-    syncErrors: [] as { model: string; error: string }[],
+  useEffect(() => {
+    api
+      .get<ISyncMeta>("/config/source")
+      .then(setConfig)
+      .catch(() => setConfig(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const source = config?.source ?? "local";
+
+  const handleSourceChange = async (newSource: DataSource) => {
+    try {
+      const updated = await api.put<ISyncMeta>("/config/source", {
+        source: newSource,
+      });
+      setConfig(updated);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        console.error(`Failed to update source: ${err.message}`);
+      }
+    }
+  };
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      await api.post("/config/sync", {});
+      const updated = await api.get<ISyncMeta>("/config/source");
+      setConfig(updated);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        console.error(`Sync failed: ${err.message}`);
+      }
+    } finally {
+      setSyncing(false);
+    }
   };
 
   return (
@@ -35,7 +67,7 @@ export default function SettingsPage() {
 
           <div className="mt-4 flex gap-3">
             <button
-              onClick={() => setSource("local")}
+              onClick={() => handleSourceChange("local")}
               className={`flex-1 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer ${
                 source === "local"
                   ? "border-accent bg-accent/10"
@@ -51,7 +83,7 @@ export default function SettingsPage() {
             </button>
 
             <button
-              onClick={() => setSource("cloud")}
+              onClick={() => handleSourceChange("cloud")}
               className={`flex-1 rounded-lg border px-4 py-3 text-left transition-colors cursor-pointer ${
                 source === "cloud"
                   ? "border-accent bg-accent/10"
@@ -67,7 +99,7 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          {source === "cloud" && !syncStatus.cloudUrl && (
+          {source === "cloud" && !config?.cloudUrl && (
             <div className="mt-3 rounded-md bg-warning/10 border border-warning/30 px-3 py-2">
               <p className="text-xs text-warning font-body font-medium">
                 No cloud database configured. Connect one below or switch back
@@ -83,9 +115,13 @@ export default function SettingsPage() {
             <h2 className="font-heading text-base font-bold text-text-primary">
               Sync Status
             </h2>
-            <Badge variant={source === "local" ? "success" : "info"}>
-              {source === "local" ? "Local active" : "Cloud active"}
-            </Badge>
+            {loading ? (
+              <Badge variant="default">Loading...</Badge>
+            ) : (
+              <Badge variant={source === "local" ? "success" : "info"}>
+                {source === "local" ? "Local active" : "Cloud active"}
+              </Badge>
+            )}
           </div>
 
           <div className="mt-4 space-y-3">
@@ -103,7 +139,7 @@ export default function SettingsPage() {
                 Local root
               </span>
               <span className="text-xs font-mono text-accent-pressed">
-                {syncStatus.localRoot}
+                {config?.localRoot ?? "—"}
               </span>
             </div>
 
@@ -112,7 +148,9 @@ export default function SettingsPage() {
                 Last full sync
               </span>
               <span className="text-xs text-text-primary font-body">
-                {new Date(syncStatus.lastFullSync).toLocaleString()}
+                {config?.lastFullSync
+                  ? new Date(config.lastFullSync).toLocaleString()
+                  : "—"}
               </span>
             </div>
 
@@ -121,7 +159,7 @@ export default function SettingsPage() {
                 Cloud database
               </span>
               <span className="text-xs text-text-secondary font-body italic">
-                {syncStatus.cloudUrl ?? "Not configured"}
+                {config?.cloudUrl ?? "Not configured"}
               </span>
             </div>
 
@@ -129,19 +167,24 @@ export default function SettingsPage() {
               <span className="text-xs text-text-secondary font-body">
                 Sync errors
               </span>
-              {syncStatus.syncErrors.length === 0 ? (
+              {!config || config.syncErrors.length === 0 ? (
                 <Badge variant="success">None</Badge>
               ) : (
                 <Badge variant="error">
-                  {syncStatus.syncErrors.length} errors
+                  {config.syncErrors.length} errors
                 </Badge>
               )}
             </div>
           </div>
 
           <div className="mt-4 flex gap-3">
-            <Button variant="secondary" size="sm">
-              Sync now
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleSync}
+              disabled={syncing}
+            >
+              {syncing ? "Syncing..." : "Sync now"}
             </Button>
             <Button variant="ghost" size="sm">
               View sync log

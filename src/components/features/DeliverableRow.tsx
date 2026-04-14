@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { Badge, Card } from "@/components/ui";
 import type { Deliverable, DeliverableType } from "@/lib/types";
-import { getAgentById, formatRelativeTime } from "@/lib/helpers";
+import { formatRelativeTime } from "@/lib/helpers";
 
 const typeIcons: Record<DeliverableType, string> = {
   file: "\u{1F4C4}",
@@ -12,11 +12,11 @@ const typeIcons: Record<DeliverableType, string> = {
 
 interface DeliverableRowProps {
   deliverable: Deliverable;
+  agentName?: string;
   className?: string;
 }
 
-export function DeliverableRow({ deliverable, className }: DeliverableRowProps) {
-  const agent = getAgentById(deliverable.agentId);
+export function DeliverableRow({ deliverable, agentName, className }: DeliverableRowProps) {
 
   return (
     <Card className={cn("flex items-center gap-3 px-4 py-3", className)}>
@@ -28,9 +28,9 @@ export function DeliverableRow({ deliverable, className }: DeliverableRowProps) 
         <span className="font-heading text-sm font-semibold text-text-primary truncate block">
           {deliverable.name}
         </span>
-        {agent && (
+        {agentName && (
           <span className="text-xs text-text-secondary font-body">
-            {agent.name}
+            {agentName}
           </span>
         )}
       </div>
