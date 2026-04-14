@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { PageShell } from "@/components/layout/PageShell";
-import { Avatar, Badge, StatusDot, EmptyState } from "@/components/ui";
+import { Avatar, Badge, Button, StatusDot, EmptyState } from "@/components/ui";
 import { StatCard } from "@/components/features/StatCard";
 import { TaskCard } from "@/components/features/TaskCard";
 import { DeliverableRow } from "@/components/features/DeliverableRow";
@@ -63,6 +64,11 @@ export default async function AgentDetailPage({
             </span>
           </div>
         </div>
+        <Link href={`/chat/${agent.id}`}>
+          <Button variant="primary" size="sm">
+            Chat with {agent.name}
+          </Button>
+        </Link>
       </div>
 
       {/* Stats row */}

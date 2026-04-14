@@ -1,7 +1,7 @@
 export type AgentStatus = "online" | "busy" | "offline" | "error";
 export type TaskStatus = "active" | "pending" | "completed";
 export type TaskPriority = "low" | "medium" | "high" | "critical";
-export type ApprovalStatus = "pending" | "approved" | "rejected";
+export type ApprovalStatus = "pending" | "approved" | "rejected" | "resolved";
 export type DeliverableType = "file" | "code" | "text" | "image";
 
 export interface Agent {

@@ -191,3 +191,132 @@ h1, h2, h3, h4, h5, h6 {
 code, pre, kbd, samp {
   font-family: "ExpensifyMono", ui-monospace, monospace;
 }
+
+/* --- Prose Styles (for markdown rendering in DeliverableViewer) --- */
+
+.prose-washi {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+
+.prose-washi h1,
+.prose-washi h2,
+.prose-washi h3,
+.prose-washi h4 {
+  font-family: "Satoshi", system-ui, sans-serif;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose-washi h1 { font-size: 1.25rem; }
+.prose-washi h2 { font-size: 1.125rem; }
+.prose-washi h3 { font-size: 1rem; }
+
+.prose-washi p {
+  margin-bottom: 0.75em;
+}
+
+.prose-washi ul,
+.prose-washi ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.prose-washi li {
+  margin-bottom: 0.25em;
+}
+
+.prose-washi ul li { list-style-type: disc; }
+.prose-washi ol li { list-style-type: decimal; }
+
+.prose-washi code {
+  font-family: "ExpensifyMono", ui-monospace, monospace;
+  font-size: 0.8em;
+  background-color: var(--bg-depth);
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+}
+
+.prose-washi pre {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+}
+
+.prose-washi pre code {
+  background: none;
+  padding: 0;
+}
+
+.prose-washi strong {
+  font-weight: 600;
+}
+
+.prose-washi a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.prose-washi blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1em;
+  color: var(--text-secondary);
+  margin-bottom: 0.75em;
+}
+
+.prose-washi hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5em 0;
+}
+
+.prose-washi table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+  font-size: 0.85rem;
+}
+
+.prose-washi thead {
+  background-color: var(--bg-depth);
+}
+
+.prose-washi th {
+  font-family: "Satoshi", system-ui, sans-serif;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.prose-washi td {
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.prose-washi tbody tr:nth-child(even) {
+  background-color: var(--bg-depth);
+}
+
+.prose-washi tbody tr:hover {
+  background-color: var(--bg-surface);
+}
+
+.prose-washi h1 {
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.3em;
+}
+
+.prose-washi h2 {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.2em;
+}

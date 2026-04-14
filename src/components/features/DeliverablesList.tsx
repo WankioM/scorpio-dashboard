@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { cn } from "@/lib/cn";
 import type { Deliverable, Agent, DeliverableType } from "@/lib/types";
 import { EmptyState } from "@/components/ui";
 import { DeliverableRow } from "./DeliverableRow";
+import { DeliverableViewer, type DeliverableStatus } from "./DeliverableViewer";
 
 interface DeliverablesListProps {
   deliverables: Deliverable[];
@@ -22,6 +23,40 @@ export function DeliverablesList({
   const [agentFilter, setAgentFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [projectFilter, setProjectFilter] = useState("all");
+  const [viewing, setViewing] = useState<Deliverable | null>(null);
+  const [statuses, setStatuses] = useState<Map<string, DeliverableStatus>>(
+    new Map()
+  );
+
+  const getStatus = useCallback(
+    (id: string): DeliverableStatus => statuses.get(id) ?? "pending",
+    [statuses]
+  );
+
+  const handleStatusChange = useCallback(
+    async (id: string, status: DeliverableStatus) => {
+      // Update local state immediately for responsiveness
+      setStatuses((prev) => {
+        const next = new Map(prev);
+        next.set(id, status);
+        return next;
+      });
+
+      // Persist to backend
+      try {
+        const API_BASE =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+        await fetch(`${API_BASE}/deliverables/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+      } catch (err) {
+        console.error("Failed to persist deliverable status:", err);
+      }
+    },
+    []
+  );
 
   const uniqueProjects = useMemo(
     () => [...new Set(deliverables.map((d) => d.project))],
@@ -100,9 +135,22 @@ export function DeliverablesList({
               key={d.id}
               deliverable={d}
               agentName={agents.find((a) => a.id === d.agentId)?.name}
+              status={getStatus(d.id)}
+              onClick={() => setViewing(d)}
             />
           ))}
         </div>
+      )}
+
+      {/* Viewer modal */}
+      {viewing && (
+        <DeliverableViewer
+          deliverable={viewing}
+          agentName={agents.find((a) => a.id === viewing.agentId)?.name}
+          status={getStatus(viewing.id)}
+          onClose={() => setViewing(null)}
+          onStatusChange={handleStatusChange}
+        />
       )}
     </div>
   );

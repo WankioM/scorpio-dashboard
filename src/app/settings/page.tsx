@@ -167,7 +167,7 @@ export default function SettingsPage() {
               <span className="text-xs text-text-secondary font-body">
                 Sync errors
               </span>
-              {!config || config.syncErrors.length === 0 ? (
+              {!config || (config.syncErrors?.length ?? 0) === 0 ? (
                 <Badge variant="success">None</Badge>
               ) : (
                 <Badge variant="error">

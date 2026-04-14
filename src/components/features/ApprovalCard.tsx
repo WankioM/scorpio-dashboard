@@ -2,35 +2,43 @@
 
 import { cn } from "@/lib/cn";
 import { Card, Badge, Avatar, Button } from "@/components/ui";
-import type { Approval } from "@/lib/types";
+import type { Approval, ApprovalStatus } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/helpers";
 
 interface ApprovalCardProps {
   approval: Approval;
   agentName?: string;
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  onStatusChange: (id: string, status: ApprovalStatus) => void;
+  onClick: () => void;
   className?: string;
 }
+
+const statusBadge: Record<ApprovalStatus, { variant: "warning" | "success" | "error" | "info"; label: string }> = {
+  pending: { variant: "warning", label: "Pending" },
+  approved: { variant: "success", label: "Approved" },
+  rejected: { variant: "error", label: "Rejected" },
+  resolved: { variant: "info", label: "Resolved" },
+};
 
 export function ApprovalCard({
   approval,
   agentName,
-  onApprove,
-  onReject,
+  onStatusChange,
+  onClick,
   className,
 }: ApprovalCardProps) {
+  const { variant, label } = statusBadge[approval.status];
+
   return (
-    <Card className={cn("flex flex-col gap-3", className)}>
+    <Card
+      className={cn("flex flex-col gap-3 cursor-pointer transition-colors hover:border-accent", className)}
+      onClick={onClick}
+    >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-heading font-medium text-text-primary">
           {approval.title}
         </h3>
-        {approval.status !== "pending" && (
-          <Badge variant={approval.status === "approved" ? "success" : "error"}>
-            {approval.status === "approved" ? "Approved" : "Rejected"}
-          </Badge>
-        )}
+        <Badge variant={variant}>{label}</Badge>
       </div>
 
       <p className="text-sm text-text-secondary font-body line-clamp-2">
@@ -59,20 +67,48 @@ export function ApprovalCard({
       )}
 
       {approval.status === "pending" && (
-        <div className="flex items-center gap-2 pt-1">
+        <div
+          className="flex items-center gap-2 pt-1"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Button
             variant="primary"
             size="sm"
-            onClick={() => onApprove(approval.id)}
+            onClick={() => onStatusChange(approval.id, "approved")}
           >
             Approve
           </Button>
           <Button
-            variant="ghost"
+            variant="danger"
             size="sm"
-            onClick={() => onReject(approval.id)}
+            onClick={() => onStatusChange(approval.id, "rejected")}
           >
             Reject
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onStatusChange(approval.id, "resolved")}
+          >
+            Resolve
+          </Button>
+        </div>
+      )}
+
+      {approval.status !== "pending" && (
+        <div
+          className="flex items-center justify-between pt-1"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="text-xs text-text-secondary font-body">
+            Marked as {label.toLowerCase()}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onStatusChange(approval.id, "pending")}
+          >
+            Undo
           </Button>
         </div>
       )}

@@ -1,3 +1,4 @@
+import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/cn";
 import { formatRelativeTime } from "@/lib/helpers";
 import type { Message } from "@/lib/types";
@@ -25,7 +26,13 @@ export function ChatBubble({ message, agentName }: ChatBubbleProps) {
             : "rounded-2xl rounded-tr-md bg-accent/10"
         )}
       >
-        {message.content}
+        {isAgent ? (
+          <div className="prose-washi">
+            <ReactMarkdown>{message.content}</ReactMarkdown>
+          </div>
+        ) : (
+          message.content
+        )}
       </div>
       <span className="mt-1 text-xs text-text-secondary font-body">
         {isAgent ? agentName : "You"} &middot; {formatRelativeTime(message.timestamp)}

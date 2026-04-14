@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { ScorpioChat } from "@/components/features/ScorpioChat";
 
 export const metadata: Metadata = {
   title: "Scorpio Dashboard",
@@ -14,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="flex h-full min-h-screen bg-bg-page text-text-primary font-body">
+      <body suppressHydrationWarning className="flex h-full min-h-screen bg-bg-page text-text-primary font-body">
         {/* Sidebar */}
         <Sidebar />
 
@@ -22,6 +23,9 @@ export default function RootLayout({
         <main className="flex-1 ml-sidebar overflow-y-auto">
           {children}
         </main>
+
+        {/* Floating Scorpio chat widget */}
+        <ScorpioChat />
       </body>
     </html>
   );
