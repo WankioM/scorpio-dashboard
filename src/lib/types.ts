@@ -51,6 +51,8 @@ export interface Approval {
   deliverableIds: string[];
 }
 
+export type DeliverableStatus = "pending" | "approved" | "rejected" | "resolved";
+
 export interface Deliverable {
   id: string;
   name: string;
@@ -61,6 +63,7 @@ export interface Deliverable {
   createdAt: string;
   path?: string;
   preview?: string;
+  status?: DeliverableStatus;
 }
 
 export interface ChatThread {

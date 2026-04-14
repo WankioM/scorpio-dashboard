@@ -5,6 +5,7 @@ import { SidebarNavLink } from "./SidebarNavLink";
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/team", label: "Team" },
+  { href: "/projects", label: "Projects" },
   { href: "/tasks", label: "Tasks" },
   { href: "/chat", label: "Chat" },
   { href: "/approvals", label: "Approvals" },

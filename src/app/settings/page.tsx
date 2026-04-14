@@ -186,9 +186,6 @@ export default function SettingsPage() {
             >
               {syncing ? "Syncing..." : "Sync now"}
             </Button>
-            <Button variant="ghost" size="sm">
-              View sync log
-            </Button>
           </div>
         </Card>
 

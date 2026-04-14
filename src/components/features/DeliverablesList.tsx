@@ -5,7 +5,8 @@ import { cn } from "@/lib/cn";
 import type { Deliverable, Agent, DeliverableType } from "@/lib/types";
 import { EmptyState } from "@/components/ui";
 import { DeliverableRow } from "./DeliverableRow";
-import { DeliverableViewer, type DeliverableStatus } from "./DeliverableViewer";
+import { DeliverableViewer } from "./DeliverableViewer";
+import type { DeliverableStatus } from "@/lib/types";
 
 interface DeliverablesListProps {
   deliverables: Deliverable[];
@@ -24,9 +25,13 @@ export function DeliverablesList({
   const [typeFilter, setTypeFilter] = useState("all");
   const [projectFilter, setProjectFilter] = useState("all");
   const [viewing, setViewing] = useState<Deliverable | null>(null);
-  const [statuses, setStatuses] = useState<Map<string, DeliverableStatus>>(
-    new Map()
-  );
+  const [statuses, setStatuses] = useState<Map<string, DeliverableStatus>>(() => {
+    const initial = new Map<string, DeliverableStatus>();
+    for (const d of deliverables) {
+      if (d.status) initial.set(d.id, d.status);
+    }
+    return initial;
+  });
 
   const getStatus = useCallback(
     (id: string): DeliverableStatus => statuses.get(id) ?? "pending",

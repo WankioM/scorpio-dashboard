@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { Badge, Button, Spinner } from "@/components/ui";
-import type { Deliverable, DeliverableType } from "@/lib/types";
+import type { Deliverable, DeliverableType, DeliverableStatus } from "@/lib/types";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
@@ -14,8 +14,6 @@ const typeLabels: Record<DeliverableType, string> = {
   text: "Text",
   image: "Image",
 };
-
-export type DeliverableStatus = "pending" | "approved" | "rejected" | "resolved";
 
 interface DeliverableViewerProps {
   deliverable: Deliverable;

@@ -8,8 +8,8 @@ import type { IApproval, IAgent } from "@/types/api";
 
 export default async function ApprovalsPage() {
   const [approvals, agents] = await Promise.all([
-    api.get<IApproval[]>("/approvals"),
-    api.get<IAgent[]>("/agents"),
+    api.getSafe<IApproval[]>("/approvals", []),
+    api.getSafe<IAgent[]>("/agents", []),
   ]);
 
   return (

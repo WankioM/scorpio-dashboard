@@ -8,8 +8,8 @@ import type { IAgent, ITask } from "@/types/api";
 
 export default async function TasksPage() {
   const [tasks, agents] = await Promise.all([
-    api.get<ITask[]>("/tasks"),
-    api.get<IAgent[]>("/agents"),
+    api.getSafe<ITask[]>("/tasks", []),
+    api.getSafe<IAgent[]>("/agents", []),
   ]);
 
   return (

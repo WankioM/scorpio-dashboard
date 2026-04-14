@@ -97,6 +97,7 @@ export interface IProject {
   stack?: string;
   team: string[];
   location?: string;
+  parentId?: string;
   _localSource: string;
   _lastSynced: string;
 }

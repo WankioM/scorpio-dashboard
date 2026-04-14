@@ -5,16 +5,17 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { StatCard } from "@/components/features/StatCard";
 import { TaskCard } from "@/components/features/TaskCard";
+import { Poller } from "@/components/ui/Poller";
 import { Avatar, Badge, Card, StatusDot } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { IAgent, ITask, IApproval, IDeliverable } from "@/types/api";
 
 export default async function HomePage() {
   const [agents, tasks, approvals, deliverables] = await Promise.all([
-    api.get<IAgent[]>("/agents"),
-    api.get<ITask[]>("/tasks"),
-    api.get<IApproval[]>("/approvals"),
-    api.get<IDeliverable[]>("/deliverables"),
+    api.getSafe<IAgent[]>("/agents", []),
+    api.getSafe<ITask[]>("/tasks", []),
+    api.getSafe<IApproval[]>("/approvals", []),
+    api.getSafe<IDeliverable[]>("/deliverables", []),
   ]);
 
   const activeTasks = tasks.filter((t) => t.status === "active");
@@ -35,6 +36,7 @@ export default async function HomePage() {
 
   return (
     <PageShell>
+      <Poller interval={30000} />
       <PageHeader title="Overview" description="Snapshot of active work" />
 
       {/* Row 1: Stats */}

@@ -5,7 +5,7 @@ import { StatCard } from "@/components/features/StatCard";
 import { TaskCard } from "@/components/features/TaskCard";
 import { DeliverableRow } from "@/components/features/DeliverableRow";
 import { formatRelativeTime } from "@/lib/helpers";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import type { IAgent, ITask, IDeliverable } from "@/types/api";
 
 export default async function AgentDetailPage({
@@ -15,26 +15,23 @@ export default async function AgentDetailPage({
 }) {
   const { agentId } = await params;
 
-  let agent: IAgent;
+  let agent: IAgent | null = null;
   try {
     agent = await api.get<IAgent>(`/agents/${agentId}`);
-  } catch (err) {
-    if (err instanceof ApiError && err.status === 404) {
-      return (
-        <PageShell>
-          <EmptyState
-            title="Agent not found"
-            description="The agent you're looking for doesn't exist or has been removed."
-          />
-        </PageShell>
-      );
-    }
-    throw err;
+  } catch {
+    return (
+      <PageShell>
+        <EmptyState
+          title="Agent not found"
+          description="The agent you're looking for doesn't exist, or the API is unreachable."
+        />
+      </PageShell>
+    );
   }
 
   const [agentTasks, deliverables] = await Promise.all([
-    api.get<ITask[]>(`/tasks?assigneeId=${agentId}`),
-    api.get<IDeliverable[]>(`/deliverables?agentId=${agentId}`),
+    api.getSafe<ITask[]>(`/tasks?assigneeId=${agentId}`, []),
+    api.getSafe<IDeliverable[]>(`/deliverables?agentId=${agentId}`, []),
   ]);
 
   const currentTask = agent.currentTask

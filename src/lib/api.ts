@@ -33,6 +33,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export const api = {
   get: <T>(path: string) => request<T>(path),
+  /** Like get, but returns fallback instead of throwing on failure. */
+  getSafe: <T>(path: string, fallback: T): Promise<T> =>
+    request<T>(path).catch(() => fallback),
   patch: <T>(path: string, body: unknown) =>
     request<T>(path, { method: "PATCH", body: JSON.stringify(body) }),
   post: <T>(path: string, body: unknown) =>

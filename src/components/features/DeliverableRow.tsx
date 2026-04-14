@@ -1,8 +1,7 @@
 import { cn } from "@/lib/cn";
 import { Badge, Card } from "@/components/ui";
-import type { Deliverable, DeliverableType } from "@/lib/types";
+import type { Deliverable, DeliverableType, DeliverableStatus } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/helpers";
-import type { DeliverableStatus } from "./DeliverableViewer";
 
 const typeIcons: Record<DeliverableType, string> = {
   file: "\u{1F4C4}",

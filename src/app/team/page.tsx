@@ -4,14 +4,16 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PageHeader } from "@/components/features/PageHeader";
 import { AgentCard } from "@/components/features/AgentCard";
 import { SyncTeamButton } from "@/components/features/SyncTeamButton";
+import { Poller } from "@/components/ui/Poller";
 import { api } from "@/lib/api";
 import type { IAgent } from "@/types/api";
 
 export default async function TeamPage() {
-  const agents = await api.get<IAgent[]>("/agents");
+  const agents = await api.getSafe<IAgent[]>("/agents", []);
 
   return (
     <PageShell>
+      <Poller interval={30000} />
       <div className="flex items-center justify-between">
         <PageHeader title="Team" description="All agents" />
         <SyncTeamButton />

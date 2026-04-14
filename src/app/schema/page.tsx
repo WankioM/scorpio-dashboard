@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import type { ISchemaResponse } from "@/types/api";
 
 export default async function SchemaPage() {
-  const schema = await api.get<ISchemaResponse>("/schema");
+  const schema = await api.getSafe<ISchemaResponse>("/schema", { models: [] });
   const models = schema.models;
 
   return (

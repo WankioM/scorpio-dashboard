@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/features/PageHeader";
 import { DeliverableRow } from "@/components/features/DeliverableRow";
 import { Avatar, Badge, Card, EmptyState } from "@/components/ui";
 import { formatRelativeTime } from "@/lib/helpers";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import type { ITask, IAgent, IDeliverable } from "@/types/api";
 
 type BadgeVariant = "default" | "success" | "warning" | "error" | "info" | "accent";
@@ -32,26 +32,18 @@ export default async function TaskDetailPage({
   let task: ITask;
   try {
     task = await api.get<ITask>(`/tasks/${taskId}`);
-  } catch (err) {
-    if (err instanceof ApiError && err.status === 404) {
-      return (
-        <PageShell>
-          <EmptyState title="Task not found" description="This task does not exist or may have been removed." />
-        </PageShell>
-      );
-    }
-    throw err;
-  }
-
-  let assignee: IAgent | undefined;
-  try {
-    assignee = await api.get<IAgent>(`/agents/${task.assigneeId}`);
   } catch {
-    assignee = undefined;
+    return (
+      <PageShell>
+        <EmptyState title="Task not found" description="This task does not exist, or the API is unreachable." />
+      </PageShell>
+    );
   }
 
-  const deliverables = await api.get<IDeliverable[]>(
-    `/deliverables?taskId=${taskId}`
+  const assignee = await api.getSafe<IAgent | null>(`/agents/${task.assigneeId}`, null) ?? undefined;
+
+  const deliverables = await api.getSafe<IDeliverable[]>(
+    `/deliverables?taskId=${taskId}`, []
   );
 
   return (

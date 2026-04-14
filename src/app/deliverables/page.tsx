@@ -8,8 +8,8 @@ import type { IAgent, IDeliverable } from "@/types/api";
 
 export default async function DeliverablesPage() {
   const [deliverables, agents] = await Promise.all([
-    api.get<IDeliverable[]>("/deliverables"),
-    api.get<IAgent[]>("/agents"),
+    api.getSafe<IDeliverable[]>("/deliverables", []),
+    api.getSafe<IAgent[]>("/agents", []),
   ]);
 
   return (
